@@ -249,11 +249,11 @@ For detailed patterns and best practices, see:
 
 ## License
 
-MIT – See LICENSE file
+Proprietary – See LICENSE file. This software is confidential and owned by DropOff Analytics. Unauthorized copying, modification, or distribution is prohibited.
 
 ## Support
 
-Issues or questions? This is a fork-friendly project—you can modify it for your game's specific needs. See [docs/support.md](./docs/support.md) for details.
+For support inquiries, contact DropOff Analytics. See [docs/support.md](./docs/support.md) for details.
 
 ---
 
