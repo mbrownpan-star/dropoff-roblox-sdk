@@ -172,6 +172,7 @@ Each player gets a unique `session_id` generated when they join:
 | `leave` | Player exits game | — |
 | `first_input` | Movement detected | — |
 | `first_interaction` | ProximityPrompt triggered | — |
+| `first_checkpoint` | `markCheckpoint()` called | `label: string` |
 | `phase_change` | `setPhase()` called | `phase: string` |
 
 ### Custom Events
@@ -179,6 +180,7 @@ Each player gets a unique `session_id` generated when they join:
 | Event | Trigger | Props |
 |-------|---------|-------|
 | `first_interaction` | `markInteraction()` called | `label: string` |
+| `first_checkpoint` | `markCheckpoint()` called | `label: string` |
 
 ## Troubleshooting
 
@@ -223,6 +225,9 @@ DropOffAnalytics.setPhase(player: Player, phaseName: string) -> nil
 -- Custom interactions
 DropOffAnalytics.markInteraction(player: Player, label: string) -> nil
 
+-- Custom checkpoints (e.g., tutorial milestones)
+DropOffAnalytics.markCheckpoint(player: Player, label: string) -> nil
+
 -- Manual flush
 DropOffAnalytics.flush() -> nil
 
@@ -249,11 +254,11 @@ For detailed patterns and best practices, see:
 
 ## License
 
-Proprietary – See LICENSE file. This software is confidential and owned by DropOff Analytics. Unauthorized copying, modification, or distribution is prohibited.
+MIT – See LICENSE file
 
 ## Support
 
-For support inquiries, contact DropOff Analytics. See [docs/support.md](./docs/support.md) for details.
+Issues or questions? This is a fork-friendly project—you can modify it for your game's specific needs. See [docs/support.md](./docs/support.md) for details.
 
 ---
 

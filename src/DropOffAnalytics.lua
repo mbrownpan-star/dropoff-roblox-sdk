@@ -95,6 +95,7 @@ local function createSessionData(player)
 		userId = player.UserId,
 		firstInputSeen = false,
 		firstInteractionSeen = false,
+		firstCheckpointSeen = false,
 		currentPhase = nil,
 		inputDetectionConnection = nil,
 		characterAddedConnection = nil,
@@ -489,6 +490,42 @@ function DropOffAnalytics.markInteraction(player, label)
 		session.firstInteractionSeen = true
 		emitEvent(session.sessionId, "first_interaction", { label = label })
 		log("debug", "Interaction marked for %s: %s", player.Name, tostring(label))
+	end
+end
+
+function DropOffAnalytics.markCheckpoint(player, label)
+	if not state.initialized then
+		log("warn", "markCheckpoint called before init")
+		return
+	end
+	
+	-- Input validation
+	if player == nil then
+		log("warn", "markCheckpoint called with nil player")
+		return
+	end
+	
+	-- Validate label (required for checkpoints)
+	if label == nil or type(label) ~= "string" then
+		log("warn", "markCheckpoint requires a string label")
+		return
+	end
+	
+	-- Sanitize label: alphanumeric, underscores, hyphens, max 64 chars
+	if #label > 64 then
+		label = label:sub(1, 64)
+		log("warn", "markCheckpoint label truncated to 64 chars")
+	end
+	if not label:match("^[%w_%-]+$") then
+		log("warn", "markCheckpoint label contains invalid characters, sanitizing")
+		label = label:gsub("[^%w_%-]", "_")
+	end
+	
+	local session = getOrCreateSession(player)
+	if not session.firstCheckpointSeen then
+		session.firstCheckpointSeen = true
+		emitEvent(session.sessionId, "first_checkpoint", { label = label })
+		log("debug", "Checkpoint marked for %s: %s", player.Name, label)
 	end
 end
 
