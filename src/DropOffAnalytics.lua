@@ -23,6 +23,12 @@ local DropOffAnalytics = {}
 -- HTTP timeout in seconds
 local HTTP_TIMEOUT_SECONDS = 30
 
+-- Maximum payload size in bytes (Roblox HttpService limit is ~500KB, use conservative limit)
+local MAX_PAYLOAD_BYTES = 450000
+
+-- Maximum pending events before dropping oldest (prevents unbounded memory growth)
+local MAX_PENDING_EVENTS = 500
+
 local config = {
 	projectKey = nil,
 	endpointBaseUrl = "https://api.dropoffanalytics.com",
@@ -129,6 +135,12 @@ end
 local function emitEvent(sessionId, eventType, props)
 	if not state.initialized then
 		return
+	end
+	
+	-- Guard: drop oldest events if pending queue exceeds limit (prevents OOM)
+	if #state.pendingEvents >= MAX_PENDING_EVENTS then
+		log("warn", "Pending events queue full (%d), dropping oldest event", MAX_PENDING_EVENTS)
+		table.remove(state.pendingEvents, 1)
 	end
 	
 	table.insert(state.pendingEvents, {
@@ -288,6 +300,13 @@ function DropOffAnalytics.flush()
 			}
 			
 			local jsonBody = serializePayload(payload)
+			
+			-- Guard: check payload size before sending
+			if #jsonBody > MAX_PAYLOAD_BYTES then
+				log("warn", "Payload too large (%d bytes, max %d). Dropping batch to prevent HttpService error.", #jsonBody, MAX_PAYLOAD_BYTES)
+				state.perfStats.errors = state.perfStats.errors + 1
+				return nil
+			end
 			
 			-- Use HttpService with timeout
 			local httpService = game:GetService("HttpService")
